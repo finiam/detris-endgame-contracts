@@ -69,7 +69,7 @@ contract Renderer {
         uint256 seed,
         uint256 _seed,
         uint256 _offset
-    ) public view returns (uint256) {
+    ) internal view returns (uint256) {
         uint256 a = uint256(keccak256(abi.encodePacked(_seed, seed, block.difficulty, block.timestamp)));
 
         uint256 b = (_offset % (MAX_INT - 1)) + 1;
@@ -83,14 +83,55 @@ contract Renderer {
         uint256 seed,
         uint256 _seed,
         uint256 _offset
-    ) public view returns (uint256[2][4][4] memory, uint256) {
-        uint256 random_piece = get_random_value(seed, _seed, _offset) % 8;
+    ) internal view returns (uint256[2][4][4] memory, uint256) {
+        uint256 random_value = get_random_value(seed, _seed, _offset) % 8;
 
-        return (pieces[random_piece], random_piece);
+        return (pieces[random_value], random_value);
     }
 
-    function render(uint256 _tokenId) public view returns (string memory) {
-        uint256 seed = 1;
+    function build_board(uint256[10][10] memory _board) internal pure returns (string memory) {
+        // NO PIECE, I, O, T, S, Z, J, L
+        string[8] memory colours = ["", "#ff5050", "#158CFA", "#F9F25D", "#D05DF9", "#5DF9DD", "#ffffff", "#64CA81"];
+
+        string memory output = "";
+
+        for (uint256 i = 0; i < 10; i++) {
+            for (uint256 j = 0; j < 10; j++) {
+                if (_board[i][j] != 0) {
+                    string memory colour_name = colours[_board[i][j]];
+
+                    output = string.concat(
+                        output,
+                        svg.rect(
+                            string.concat(
+                                svg.prop("fill", colour_name),
+                                svg.prop("stroke", "#252a3d"),
+                                svg.prop("x", utils.uint2str(i * 100)),
+                                svg.prop("y", utils.uint2str(j * 100)),
+                                svg.prop("width", "100"),
+                                svg.prop("height", "100")
+                            ),
+                            utils.NULL
+                        )
+                    );
+                }
+            }
+        }
+
+        return output;
+    }
+
+    function draw(string memory _board) internal pure returns (string memory) {
+        return
+            string.concat(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" style="background:#252a3d">',
+                _board,
+                "</svg>"
+            );
+    }
+
+    function render(uint256 _tokenId) internal view returns (string memory) {
+        uint256 seed = _tokenId;
         uint256 current_piece;
         uint256[10][10] memory _board;
 
@@ -131,50 +172,5 @@ contract Renderer {
         string memory a = build_board(_board);
 
         return draw(a);
-    }
-
-    function build_board(uint256[10][10] memory _board) public view returns (string memory) {
-        // NO PIECE, I, O, T, S, Z, J, L
-        string[8] memory colours = ["", "#ff5050", "#158CFA", "#F9F25D", "#D05DF9", "#5DF9DD", "#ffffff", "#64CA81"];
-
-        string memory output = "";
-
-        for (uint256 i = 0; i < 10; i++) {
-            for (uint256 j = 0; j < 10; j++) {
-                if (_board[i][j] != 0) {
-                    string memory colour_name = colours[_board[i][j]];
-
-                    output = string.concat(
-                        output,
-                        svg.rect(
-                            string.concat(
-                                svg.prop("fill", colour_name),
-                                svg.prop("stroke", "#252a3d"),
-                                svg.prop("x", utils.uint2str(i * 100)),
-                                svg.prop("y", utils.uint2str(j * 100)),
-                                svg.prop("width", "100"),
-                                svg.prop("height", "100")
-                            ),
-                            utils.NULL
-                        )
-                    );
-                }
-            }
-        }
-
-        return output;
-    }
-
-    function draw(string memory _board) public view returns (string memory) {
-        return
-            string.concat(
-                '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" style="background:#252a3d">',
-                _board,
-                "</svg>"
-            );
-    }
-
-    function example() external returns (string memory) {
-        return render(1);
     }
 }
