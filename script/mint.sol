@@ -10,7 +10,7 @@ interface Endgame {
 contract Mint is Script {
     function run() external {
         vm.startBroadcast();
-        Endgame e = Endgame(address(0xA8370425458dbf823c7d4BA777E6A091791c2528));
+        Endgame e = Endgame(address(0x7360E6FC6346b06C1500CF780eC52e7Df1dcB7Ef));
 
         for (uint256 i = 0; i < 50; i++) {
             e.mint();
