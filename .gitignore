@@ -18,3 +18,5 @@ flattened.txt
 .envrc
 .direnv/
 .ipynb_checkpoints/
+
+broadcast/deploy.sol/31337

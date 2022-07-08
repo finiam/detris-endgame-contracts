@@ -89,14 +89,14 @@ contract Renderer {
         return (pieces[random_value], random_value);
     }
 
-    function build_board(uint256[10][10] memory _board) internal pure returns (string memory) {
+    function build_board(uint256[20][20] memory _board) internal pure returns (string memory) {
         // NO PIECE, I, O, T, S, Z, J, L
         string[8] memory colours = ["", "#ff5050", "#158CFA", "#F9F25D", "#D05DF9", "#5DF9DD", "#ffffff", "#64CA81"];
 
         string memory output = "";
 
-        for (uint256 i = 0; i < 10; i++) {
-            for (uint256 j = 0; j < 10; j++) {
+        for (uint256 i = 0; i < 20; i++) {
+            for (uint256 j = 0; j < 20; j++) {
                 if (_board[i][j] != 0) {
                     string memory colour_name = colours[_board[i][j]];
 
@@ -124,7 +124,7 @@ contract Renderer {
     function draw(string memory _board) internal pure returns (string memory) {
         return
             string.concat(
-                '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" style="background:#252a3d">',
+                '<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="2000" style="background:#252a3d">',
                 _board,
                 "</svg>"
             );
@@ -133,14 +133,16 @@ contract Renderer {
     function render(uint256 _tokenId) internal view returns (string memory) {
         uint256 seed = _tokenId;
         uint256 current_piece;
-        uint256[10][10] memory _board;
+        uint256[20][20] memory _board;
 
-        for (uint256 i = 0; i < 10; i++) {
-            for (uint256 j = 0; j < 10; j++) {
+        for (uint256 i = 0; i < 20; i++) {
+            for (uint256 j = 0; j < 20; j++) {
                 if (_board[i][j] == 0) {
                     bool next_piece = false;
 
-                    for (uint256 k = 0; k < 4 && !next_piece; k++) {
+                    uint256 random_rotation_value = get_random_value(j, i, seed) % 4;
+
+                    for (uint256 k = 0; k < random_rotation_value && !next_piece; k++) {
                         (uint256[2][4][4] memory random_pieces, uint256 random_index) = random_piece(seed, i, j);
 
                         uint256[2][4] memory _random_piece = random_pieces[k];
@@ -148,10 +150,10 @@ contract Renderer {
                         seed = i;
 
                         if (
-                            (i + _random_piece[0][0] < 10 && j + _random_piece[0][1] < 10) &&
-                            (i + _random_piece[1][0] < 10 && j + _random_piece[1][1] < 10) &&
-                            (i + _random_piece[2][0] < 10 && j + _random_piece[2][1] < 10) &&
-                            (i + _random_piece[3][0] < 10 && j + _random_piece[3][1] < 10) &&
+                            (i + _random_piece[0][0] < 20 && j + _random_piece[0][1] < 20) &&
+                            (i + _random_piece[1][0] < 20 && j + _random_piece[1][1] < 20) &&
+                            (i + _random_piece[2][0] < 20 && j + _random_piece[2][1] < 20) &&
+                            (i + _random_piece[3][0] < 20 && j + _random_piece[3][1] < 20) &&
                             (_board[i + _random_piece[0][0]][j + _random_piece[0][1]] == 0) &&
                             (_board[i + _random_piece[1][0]][j + _random_piece[1][1]] == 0) &&
                             (_board[i + _random_piece[2][0]][j + _random_piece[2][1]] == 0) &&
